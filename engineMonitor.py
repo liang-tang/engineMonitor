@@ -3,23 +3,12 @@ import serial
 import serial.tools.list_ports
 import time
 
-# layout = [[sg.Text('My one-shot window.')],
-#          [sg.InputText(key='-IN-')],
-#          [sg.Text('Row 2'), sg.Checkbox('box 1', sg.OK())],
-#          [sg.Submit(), sg.Cancel()]]
-
-# window = sg.Window('Window Title', layout)
-
-# event, values = window.read()
-# window.close()
-
-# text_input = values['-IN-']
-# sg.popup('You entered', text_input)
-
 Com_Dict = {}
 port_list = list(serial.tools.list_ports.comports())
-# for port in port_list:
-#     sg.Print(port, do_not_reroute_stdout=False)
+port_list_name = []
+if len(port_list) > 0:
+    for each_port in port_list:
+      port_list_name.append(each_port[0])
 
 # 发动机转速 Engine Speed                   r/min
 # 发动机油耗 Fuel Flow Rate                 L/h
@@ -43,8 +32,7 @@ port_list = list(serial.tools.list_ports.comports())
 
 sg.theme('BluePurple')
 
-layout = [#[sg.Text('Your typed chars appear here:'), sg.Text(size=(15,1), key='-OUTPUT-')],
-          [
+layout = [[
             sg.Text('发动机转速:', size=(10,1)), sg.Text(size=(10,1), key='-SPEED-'),
             sg.Text('发动机油耗:', size=(10,1)), sg.Text(size=(10,1), key='-FLOW-'),
             sg.Text('发动机环温:', size=(10,1)), sg.Text(size=(10,1), key='-EAT-'),
@@ -68,23 +56,24 @@ layout = [#[sg.Text('Your typed chars appear here:'), sg.Text(size=(15,1), key='
             sg.Text('排气口气压:', size=(10,1)), sg.Text(size=(10,1), key='-MAP-'),
             sg.Text('ECU电压:', size=(10,1)), sg.Text(size=(10,1), key='-EBV-')
           ],
-          [sg.Input(key='-IN-')],
-          [sg.Combo(port_list)],
-          [sg.Combo(['11', '22', '33'])],
-          [sg.InputCombo(('Combobox 1', 'Combobox 2'), size=(20, 1))],
-          [sg.Button('Show'), sg.Button('Exit')]]
+          [sg.OptionMenu(port_list_name, key='PORT'), sg.Button('Open')],
+          [sg.Button('Exit')]]
 
 window = sg.Window('发动机监控仪', layout)
 
 val = 1
+
 while True:  # Event Loop
     event, values = window.read(timeout=1)
-    print(event, values)
+    #print(event, values)
     if event == sg.WIN_CLOSED or event == 'Exit':
         break
-    if event == 'Show':
-        # Update the "output" text element to be the value of "input" element
-        window['-OUTPUT-'].update(values['-IN-'])
+
+    if event == 'Open':
+        ser = serial.Serial(values['PORT'], 115200)
+        resule = ser.write("hello".encode("utf-8"))
+        print(ser.name, resule)
+        print(event, values['PORT'])
 
     str_line = str(val) + " r/min"
     window['-SPEED-'].update(str_line)
