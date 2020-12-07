@@ -63,6 +63,7 @@ window = sg.Window('发动机监控仪', layout)
 
 val = 1
 ser = None
+input_data = []
 while True:  # Event Loop
   event, values = window.read(timeout=1)
   #print(event, values)
@@ -80,6 +81,13 @@ while True:  # Event Loop
       ser = serial.Serial(values['PORT'], 115200)
       if ser != None and ser.is_open:
         window.Element('Open').Update('Close')
+
+  if ser != None and ser.is_open:
+    s = ser.read()
+    if len(s) == 1:
+      input_data.append(s)
+    if len(input_data) == 9:
+      input_data.clear()
 
   if val % 50 == 0 and ser != None and ser.is_open:
     resule = ser.write("Hello from Pyserial\n".encode("utf-8"))
