@@ -62,56 +62,65 @@ layout = [[
 window = sg.Window('发动机监控仪', layout)
 
 val = 1
-
+ser = None
 while True:  # Event Loop
-    event, values = window.read(timeout=1)
-    #print(event, values)
-    if event == sg.WIN_CLOSED or event == 'Exit':
-        break
+  event, values = window.read(timeout=1)
+  #print(event, values)
+  if event == sg.WIN_CLOSED or event == 'Exit':
+    if ser != None and ser.is_open:
+      ser.close()
+    break
 
-    if event == 'Open':
-        ser = serial.Serial(values['PORT'], 115200)
-        resule = ser.write("hello".encode("utf-8"))
-        print(ser.name, resule)
-        print(event, values['PORT'])
+  if event == 'Open':
+    if ser != None and ser.is_open:
+      window.Element('Open').Update('Open')
+      ser.close()
+      ser = None
+    else:
+      ser = serial.Serial(values['PORT'], 115200)
+      if ser != None and ser.is_open:
+        window.Element('Open').Update('Close')
 
-    str_line = str(val) + " r/min"
-    window['-SPEED-'].update(str_line)
-    str_line = str(val) + " L/h"
-    window['-FLOW-'].update(str_line)
-    str_line = str(val) + " K"
-    window['-EAT-'].update(str_line)
-    str_line = str(val) + " hPa"
-    window['-EAP-'].update(str_line)
+  if val % 50 == 0 and ser != None and ser.is_open:
+    resule = ser.write("Hello from Pyserial\n".encode("utf-8"))
 
-    str_line = str(val) + " hPa"
-    window['-OP-'].update(str_line)
-    str_line = str(val) + " K"
-    window['-OT-'].update(str_line)
-    str_line = str(val) + " hPa"
-    window['-OPC-'].update(str_line)
-    str_line = str(val) + " K"
-    window['-CT-'].update(str_line)
+  str_line = str(val) + " r/min"
+  window['-SPEED-'].update(str_line)
+  str_line = str(val) + " L/h"
+  window['-FLOW-'].update(str_line)
+  str_line = str(val) + " K"
+  window['-EAT-'].update(str_line)
+  str_line = str(val) + " hPa"
+  window['-EAP-'].update(str_line)
 
-    str_line = str(val) + " K"
-    window['-EGTC1-'].update(str_line)
-    str_line = str(val) + " K"
-    window['-EGTC2-'].update(str_line)
-    str_line = str(val) + " K"
-    window['-EGTC3-'].update(str_line)
-    str_line = str(val) + " K"
-    window['-EGTC4-'].update(str_line)
+  str_line = str(val) + " hPa"
+  window['-OP-'].update(str_line)
+  str_line = str(val) + " K"
+  window['-OT-'].update(str_line)
+  str_line = str(val) + " hPa"
+  window['-OPC-'].update(str_line)
+  str_line = str(val) + " K"
+  window['-CT-'].update(str_line)
 
-    str_line = str(val) + " %"
-    window['-THR-'].update(str_line)
-    str_line = str(val) + " K"
-    window['-MAT-'].update(str_line)
-    str_line = str(val) + " hPa"
-    window['-MAP-'].update(str_line)
-    str_line = str(val) + " V"
-    window['-EBV-'].update(str_line)
+  str_line = str(val) + " K"
+  window['-EGTC1-'].update(str_line)
+  str_line = str(val) + " K"
+  window['-EGTC2-'].update(str_line)
+  str_line = str(val) + " K"
+  window['-EGTC3-'].update(str_line)
+  str_line = str(val) + " K"
+  window['-EGTC4-'].update(str_line)
 
-    val += 1
-    time.sleep(0.01)
+  str_line = str(val) + " %"
+  window['-THR-'].update(str_line)
+  str_line = str(val) + " K"
+  window['-MAT-'].update(str_line)
+  str_line = str(val) + " hPa"
+  window['-MAP-'].update(str_line)
+  str_line = str(val) + " V"
+  window['-EBV-'].update(str_line)
+
+  val += 1
+  time.sleep(0.01)
 
 window.close()
